@@ -74,7 +74,7 @@ namespace SV22T1020439.Admin.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            ModelState.AddModelError("", $"Đăng nhập thất bại. Username: {model.Username}, Hash: {hashedPassword}");
+            ModelState.AddModelError("", $"Đăng nhập thất bại. Username: {model.Username}");
             return View(model);
         }
 
