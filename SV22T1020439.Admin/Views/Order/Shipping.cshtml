@@ -1,0 +1,74 @@
+@{
+    Layout = null;
+}
+
+<div class="modal-dialog">
+    <div class="modal-content">
+        <form id="formShipping" action="~/Order/Shipping/@ViewBag.OrderID" method="post">
+            <div class="modal-header">
+                <h5 class="modal-title">Chuyển giao đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Người giao hàng:</label>
+                    <select class="form-select" name="shipperID">
+                        <option value="0">-- Chọn người giao hàng --</option>
+                        @foreach (var item in ViewBag.Shippers)
+                        {
+                            <option value="@item.ShipperID">@item.ShipperName</option>
+                        }
+                    </select>
+                    @Html.ValidationMessage("ShipperID", new { @class = "text-danger" })
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ngày giao hàng:</label>
+                    <div class="input-group">
+                        <input type="text" name="shippedTime" class="form-control date-picker" 
+                               value="@DateTime.Now.ToString("dd/MM/yyyy")" />
+                        <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                    </div>
+                    @Html.ValidationMessage("ShippedTime", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-truck"></i> Xác nhận
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        // Khởi tạo flatpickr cho modal vì modal nội dung được load động
+        $('#formShipping .date-picker').flatpickr({
+            allowInput: true,
+            dateFormat: "d/m/Y",
+            locale: "vn"
+        });
+
+        $('#formShipping').submit(function (e) {
+            e.preventDefault();
+            var url = $(this).attr('action');
+            var data = $(this).serialize();
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: data,
+                success: function (result) {
+                    if (result.success) {
+                        $('#modal-container').modal('hide');
+                        location.reload();
+                    } else {
+                        // Nếu có lỗi validation, load lại nội dung modal với thông báo lỗi
+                        $('#modal-container').html(result);
+                    }
+                }
+            });
+        });
+    });
+</script>

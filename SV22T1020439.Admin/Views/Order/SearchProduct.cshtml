@@ -1,0 +1,100 @@
+@model SV22T1020439.Models.PaginationSearchResult<SV22T1020439.Models.Product>
+@{
+    Layout = null;
+}
+
+<div class="product-search-results">
+    @if (Model.Data.Any())
+    {
+        foreach (var item in Model.Data)
+        {
+            <form action="~/Order/AddToCart" method="post" class="border rounded p-2 mb-2 add-to-cart-form">
+                <input type="hidden" name="ProductID" value="@item.ProductID" />
+                <input type="hidden" name="ProductName" value="@item.ProductName" />
+                <input type="hidden" name="Unit" value="@item.Unit" />
+                <input type="hidden" name="Photo" value="@item.Photo" />
+                
+                <strong>@item.ProductName</strong>
+
+                <div class="row mt-2">
+                    <div class="col-4">
+                        <img src="~/images/products/@(string.IsNullOrEmpty(item.Photo) ? "default.png" : item.Photo)"
+                             class="img-fluid border" style="max-height:100px" />
+                    </div>
+                    <div class="col-8">
+                        <div class="row g-2">
+                            <div class="col-7">
+                                <label class="form-label mb-0 small">Giá</label>
+                                <input type="text" name="SalePrice" class="form-control form-control-sm money-input"
+                                       value="@item.Price.ToString("N0")" />
+                            </div>
+                            <div class="col-5">
+                                <label class="form-label mb-0 small">SL</label>
+                                <input type="number" name="Quantity"
+                                       min="1"
+                                       value="1"
+                                       class="form-control form-control-sm" />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-sm btn-primary mt-2 w-100">
+                            <i class="bi bi-cart-plus"></i>
+                            Thêm vào giỏ
+                        </button>
+                    </div>
+                </div>
+            </form>
+        }
+    }
+    else
+    {
+        <div class="text-center text-muted p-3">
+            Không tìm thấy sản phẩm nào
+        </div>
+    }
+
+    @if (Model.PageCount > 1)
+    {
+        <ul class="pagination pagination-sm justify-content-between mb-0 mt-3">
+            <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                <a class="page-link" href="javascript:;" onclick="doSearch(@(Model.Page - 1))">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link text-dark">Trang @Model.Page / @Model.PageCount</span>
+            </li>
+            <li class="page-item @(Model.Page >= Model.PageCount ? "disabled" : "")">
+                <a class="page-link" href="javascript:;" onclick="doSearch(@(Model.Page + 1))">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    }
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('.add-to-cart-form').submit(function(e) {
+            e.preventDefault();
+            var url = $(this).attr('action');
+            var data = $(this).serialize();
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: data,
+                success: function(result) {
+                    if (result.success) {
+                        showShoppingCart();
+                    } else {
+                        alert(result.message);
+                    }
+                }
+            });
+        });
+
+        if (typeof setupMoneyInput === 'function') {
+            setupMoneyInput('.money-input');
+        }
+    });
+</script>

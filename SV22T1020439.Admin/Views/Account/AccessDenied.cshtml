@@ -1,0 +1,40 @@
+@{
+    ViewBag.Title = "Truy cập bị từ chối";
+}
+
+<div class="container-fluid pt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card card-danger card-outline shadow-sm">
+                <div class="card-header border-0 bg-transparent text-center pt-4">
+                    <div class="display-1 text-danger mb-3">
+                        <i class="bi bi-shield-lock"></i>
+                    </div>
+                    <h2 class="fw-bold text-dark">403 - Truy cập bị từ chối</h2>
+                </div>
+                
+                <div class="card-body text-center px-4 pb-5">
+                    <p class="lead text-muted mb-4">
+                        Rất tiếc! Bạn không có quyền truy cập vào chức năng này. 
+                        Vui lòng liên hệ với quản trị viên nếu bạn tin rằng đây là một sự nhầm lẫn.
+                    </p>
+                    
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary px-4 me-sm-2">
+                            <i class="bi bi-arrow-left me-1"></i> Quay lại
+                        </a>
+                        <a href="~/" class="btn btn-primary px-4">
+                            <i class="bi bi-house-door me-1"></i> Về trang chủ
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-light text-center py-3">
+                    <small class="text-muted">
+                        Tài khoản hiện tại: <strong>@User.Identity?.Name</strong>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

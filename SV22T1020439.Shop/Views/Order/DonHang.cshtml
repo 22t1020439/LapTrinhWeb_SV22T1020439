@@ -1,0 +1,120 @@
+@model SV22T1020439.Models.OrderSearchResult
+@{
+    ViewBag.Title = "Đơn hàng của bạn";
+}
+
+<div class="card shadow-sm">
+    @* <div class="card-header bg-white py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="bi bi-box-seam"></i> Đơn hàng của bạn</h4>
+            <a href="~/Order/DonHang" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Quay lại đơn hàng
+            </a>
+        </div>
+    </div> *@
+    <div class="card-body">
+        @if (!string.IsNullOrEmpty(TempData["Message"]?.ToString()))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["Message"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        
+        <form action="~/Order/DonHang" method="get" class="mb-4">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <select name="status" class="form-select">
+                        <option value="-1" selected="@(Model.Status == -1 ? "selected" : null)">Tất cả</option>
+                        <option value="0" selected="@(Model.Status == 0 ? "selected" : null)">Đơn mới</option>
+                        <option value="1" selected="@(Model.Status == 1 ? "selected" : null)">Đã duyệt</option>
+                        <option value="2" selected="@(Model.Status == 2 ? "selected" : null)">Đang giao</option>
+                    </select>
+                </div>
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input type="text" name="searchValue" class="form-control" placeholder="Tìm kiếm đơn hàng..." value="@Model.SearchValue">
+                        <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                    </div>
+                </div>
+                @* <div class="col-md-2">
+                    <a href="~/Order/DonHang" class="btn btn-outline-secondary w-100">Xóa bộ lọc</a>
+                </div> *@
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">Mã ĐH</th>
+                        <th>Ngày lập</th>
+                        <th>Địa chỉ giao hàng</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Data.Any())
+                    {
+                        foreach (var item in Model.Data)
+                        {
+                            <tr>
+                                <td class="text-center fw-bold">#@item.OrderID</td>
+                                <td>@item.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    <small class="d-block text-truncate" style="max-width: 300px;">
+                                        @item.DeliveryAddress, @item.DeliveryProvince
+                                    </small>
+                                </td>
+                                <td class="text-center">
+                                    @switch (item.Status)
+                                    {
+                                        case 0: <span class="badge bg-secondary">Đơn mới</span> break;
+                                        case 1: <span class="badge bg-warning">Đã duyệt</span> break;
+                                        case 2: <span class="badge bg-info">Đang giao</span> break;
+                                        default: <span class="badge bg-secondary">Không xác định</span> break;
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <a href="~/Order/Details/@item.OrderID" class="btn btn-sm btn-outline-primary">
+                                        Chi tiết
+                                    </a>
+                                    @if (item.Status == 0 || item.Status == 1)
+                                    {
+                                        <a href="~/Order/Cancel/@item.OrderID" class="btn btn-sm btn-outline-danger" 
+                                           onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
+                                            Hủy ĐH
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                Bạn không có đơn hàng nào đang xử lý
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.PageCount > 1)
+        {
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    @for (int p = 1; p <= Model.PageCount; p++)
+                    {
+                        <li class="page-item @(p == Model.Page ? "active" : "")">
+                            <a class="page-link" href="~/Order/DonHang?page=@p&searchValue=@Model.SearchValue&status=@Model.Status">@p</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    </div>
+</div>

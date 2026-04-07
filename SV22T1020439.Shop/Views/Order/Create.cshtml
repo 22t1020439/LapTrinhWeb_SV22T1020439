@@ -1,0 +1,257 @@
+@model List<SV22T1020439.Models.CartItem>
+@{
+    ViewBag.Title = "Lập đơn hàng";
+    var cart = ViewBag.Cart as List<CartItem> ?? new List<CartItem>();
+    var provinces = ViewBag.Provinces as List<SV22T1020439.Models.Province> ?? new List<SV22T1020439.Models.Province>();
+    decimal cartTotal = cart.Sum(c => c.TotalPrice);
+}
+
+<div class="row">
+    <!-- Left Column: Cart & Order Info -->
+    <div class="col-md-5">
+        <!-- Shopping Cart -->
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">Giỏ hàng</h3>
+            </div>
+            <div class="box-body">
+                @if (cart.Any())
+                {
+                    <table class="table table-bordered table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Tên hàng</th>
+                                <th class="text-center">SL</th>
+                                <th class="text-right">Giá</th>
+                                <th class="text-right">Thành tiền</th>
+                                <th style="width:40px"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in cart)
+                            {
+                                <tr>
+                                    <td>@item.ProductName</td>
+                                    <td class="text-center">@item.Quantity</td>
+                                    <td class="text-right">@string.Format("{0:N0}", item.SalePrice)</td>
+                                    <td class="text-right">@string.Format("{0:N0}", item.TotalPrice)</td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-xs btn-info btn-update-cart" data-productid="@item.ProductID" data-name="@item.ProductName" data-quantity="@item.Quantity" data-price="@item.SalePrice">
+                                            <i class="fa fa-edit"></i> Cập nhật
+                                        </button>
+                                        <a href="~/Order/RemoveFromCart?productID=@item.ProductID" class="btn btn-xs btn-danger" onclick="return confirm('Xóa mặt hàng này khỏi giỏ hàng?')">
+                                            <i class="fa fa-trash"></i> Xóa
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3" class="text-right">Tổng cộng:</th>
+                                <th class="text-right">@string.Format("{0:N0}", cartTotal)</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <!-- Modal cập nhật mặt hàng trong giỏ -->
+                    <div class="modal fade" id="modalUpdateCartItem" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Cập nhật mặt hàng</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="text-muted mb-2" id="modalProductName"></p>
+                                    <form id="frmUpdateCartItem" action="~/Order/UpdateCartItem" method="post">
+                                        <input type="hidden" name="productID" id="modalProductID" />
+                                        <div class="mb-3">
+                                            <label class="form-label">Số lượng:</label>
+                                            <input type="number" name="quantity" id="modalQuantity" class="form-control" min="1" required />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Đơn giá:</label>
+                                            <input type="number" name="salePrice" id="modalSalePrice" class="form-control" min="0" step="0.01" required />
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                    <button type="button" class="btn btn-primary" id="btnModalUpdate">
+                                        <i class="bi bi-check-lg"></i> Cập nhật
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-center text-muted">Giỏ hàng trống</p>
+                }
+            </div>
+        </div>
+
+        @if (cart.Any())
+        {
+            <script>
+                window.addEventListener('load', function () {
+                    var modalEl = document.getElementById('modalUpdateCartItem');
+                    if (!modalEl || typeof bootstrap === 'undefined') return;
+                    var modal = new bootstrap.Modal(modalEl);
+                    document.querySelectorAll('.btn-update-cart').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            document.getElementById('modalProductID').value = btn.getAttribute('data-productid');
+                            document.getElementById('modalProductName').textContent = btn.getAttribute('data-name');
+                            document.getElementById('modalQuantity').value = btn.getAttribute('data-quantity');
+                            document.getElementById('modalSalePrice').value = btn.getAttribute('data-price');
+                            modal.show();
+                        });
+                    });
+                    var btnUpdate = document.getElementById('btnModalUpdate');
+                    if (btnUpdate) {
+                        btnUpdate.addEventListener('click', function () {
+                            var qty = parseInt(document.getElementById('modalQuantity').value, 10);
+                            var price = parseFloat(document.getElementById('modalSalePrice').value);
+                            if (isNaN(qty) || qty < 1) {
+                                alert('Số lượng phải lớn hơn 0.');
+                                return;
+                            }
+                            if (isNaN(price) || price < 0) {
+                                alert('Đơn giá không hợp lệ.');
+                                return;
+                            }
+                            document.getElementById('frmUpdateCartItem').submit();
+                        });
+                    }
+                });
+            </script>
+        }
+
+        <!-- Order Form -->
+        @if (cart.Any())
+        {
+            <div class="box box-success">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Thông tin đặt hàng</h3>
+                </div>
+                <div class="box-body">
+                    @if (TempData["Message"] != null)
+                    {
+                        <div class="alert alert-warning">@TempData["Message"]</div>
+                    }
+                    <form action="~/Order/Init" method="post">
+                        <div class="form-group">
+                            <label>Tên khách hàng:</label>
+                            <input type="text" name="customerName" class="form-control" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Tên giao dịch:</label>
+                            <input type="text" name="contactName" class="form-control" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Số điện thoại:</label>
+                            <input type="text" name="phone" class="form-control" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="email" name="email" class="form-control" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Tỉnh/Thành:</label>
+                            <select name="province" class="form-control" required>
+                                <option value="">-- Chọn Tỉnh/Thành --</option>
+                                @foreach (var prov in provinces)
+                                {
+                                    <option value="@prov.ProvinceName">@prov.ProvinceName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Địa chỉ nhận hàng:</label>
+                            <input type="text" name="address" class="form-control" required />
+                        </div>
+                        <div class="form-group text-right">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fa fa-check"></i> Xác nhận đặt hàng
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Right Column: Product List -->
+    <div class="col-md-7">
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">Danh sách sản phẩm</h3>
+                <div class="box-tools pull-right">
+                    <form action="~/Order/Create" method="get" class="form-inline">
+                        <div class="input-group input-group-sm" style="width: 200px;">
+                            <input type="text" name="searchValue" class="form-control pull-right" placeholder="Tìm kiếm sản phẩm..." value="@ViewBag.SearchValue">
+                            <div class="input-group-btn">
+                                <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="box-body">
+                @if (Model != null && Model.Any())
+                {
+                    <div class="row">
+                        @foreach (var item in Model)
+                        {
+                            <div class="col-sm-6 col-md-4">
+                                <div class="thumbnail" style="height:360px; position:relative;">
+                                    <img src="@(string.IsNullOrEmpty(item.Photo) ? "/images/products/default.png" : "/images/products/" + item.Photo)" 
+                                         alt="@item.ProductName" style="max-height:150px; width:auto;">
+                                    <div class="caption">
+                                        <h4 style="font-size:14px; height:40px; overflow:hidden;">@item.ProductName</h4>
+                                        <p>Đơn vị: @item.Unit</p>
+                                        <p><strong>@string.Format("{0:N0}", item.SalePrice)</strong></p>
+                                        <form action="~/Order/AddToCart" method="post" style="position:absolute; bottom:10px; width:88%;">
+                                            <input type="hidden" name="productID" value="@item.ProductID" />
+                                            <div class="input-group">
+                                                <input type="number" name="quantity" value="1" min="1" class="form-control input-sm" />
+                                                <span class="input-group-btn">
+                                                    <button type="submit" class="btn btn-primary btn-sm">
+                                                        <i class="fa fa-cart-plus"></i> Thêm
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="text-center">
+                         @{
+                             int p = ViewBag.Page;
+                             int s = ViewBag.PageSize;
+                             int total = ViewBag.RowCount;
+                             int pageCount = total / s + (total % s > 0 ? 1 : 0);
+                         }
+                         <ul class="pagination">
+                            @for(int i = 1; i <= pageCount; i++)
+                            {
+                                <li class="@(i == p ? "active" : "")"><a href="~/Order/Create?page=@i&searchValue=@ViewBag.SearchValue">@i</a></li>
+                            }
+                         </ul>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-center">Không tìm thấy sản phẩm nào.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

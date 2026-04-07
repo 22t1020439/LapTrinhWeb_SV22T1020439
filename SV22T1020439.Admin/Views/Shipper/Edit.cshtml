@@ -1,0 +1,54 @@
+@model SV22T1020439.Models.Shipper
+@{
+}
+@section PageToolBar {
+    <button type="submit" form="formEdit" class="btn btn-primary">
+        <i class="bi bi-save"></i>
+        Lưu dữ liệu
+    </button>
+
+    <a href="~/Shipper" class="btn btn-secondary ms-1">
+        <i class="bi bi-arrow-left"></i>
+        Quay lại
+    </a>
+}
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card card-primary card-outline shadow-sm">
+            <div class="card-header border-0 bg-transparent py-3">
+                <h5 class="card-title fw-bold mb-0">
+                    <i class="bi bi-bicycle me-2 text-primary"></i>
+                    Thông tin người giao hàng
+                </h5>
+            </div>
+
+            <div class="card-body px-4 pb-4">
+                <form id="formEdit" action="~/Shipper/Save" method="post">
+                    @Html.HiddenFor(m => m.ShipperID)
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tên người giao hàng</label>
+                        <input type="text"
+                               name="@nameof(Model.ShipperName)"
+                               value="@Model.ShipperName"
+                               class="form-control"
+                               placeholder="Nhập tên người giao hàng" autofocus />
+                        @Html.ValidationMessage(nameof(Model.ShipperName), new { @class = "text-danger" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Điện thoại</label>
+                        <input type="tel"
+                               name="@nameof(Model.Phone)"
+                               value="@Model.Phone"
+                               class="form-control"
+                               placeholder="Nhập số điện thoại" />
+                        @Html.ValidationMessage(nameof(Model.Phone), new { @class = "text-danger" })
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

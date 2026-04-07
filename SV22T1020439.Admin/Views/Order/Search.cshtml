@@ -1,0 +1,102 @@
+@model SV22T1020439.Models.OrderSearchResult
+@{
+    Layout = null;
+}
+
+<div class="mb-2 text-muted">
+    Danh sách này có <strong>@Model.RowCount</strong> đơn hàng
+</div>
+
+<div class="card">
+    <div class="card-body p-1">
+        <table class="table table-bordered table-hover mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <th class="text-center">Mã đơn hàng</th>
+                    <th>Khách hàng</th>
+                    <th class="text-center">Ngày lập</th>
+                    <th class="text-center">Người giao hàng</th>
+                    <th class="text-center">Ngày giao</th>
+                    <th class="text-center">Ngày kết thúc</th>
+                    <th class="text-center">Tổng tiền</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th class="text-center" style="width:80px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Data.Any())
+                {
+                    foreach (var item in Model.Data)
+                    {
+                        <tr>
+                            <td class="text-center fw-bold">@item.OrderID</td>
+                            <td>
+                                <strong>@item.CustomerName</strong><br />
+                                <small class="text-muted">@item.DeliveryProvince - @item.DeliveryAddress</small>
+                            </td>
+                            <td class="text-center">@item.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="text-center">@item.ShipperName</td>
+                            <td class="text-center">@(item.ShippedTime.HasValue ? item.ShippedTime.Value.ToString("dd/MM/yyyy HH:mm") : "")</td>
+                            <td class="text-center">@(item.FinishedTime.HasValue ? item.FinishedTime.Value.ToString("dd/MM/yyyy HH:mm") : "")</td>
+                            <td class="text-end">@item.TotalPrice.ToString("N0")</td>
+                            <td class="text-center">
+                                @switch (item.Status)
+                                {
+                                    case 0:
+                                        <span class="badge bg-secondary">Đơn mới</span>
+                                        break;
+                                    case 1:
+                                        <span class="badge bg-warning">Đã duyệt</span>
+                                        break;
+                                    case 2:
+                                        <span class="badge bg-info">Đang giao</span>
+                                        break;
+                                    case 3:
+                                        <span class="badge bg-success">Hoàn thành</span>
+                                        break;
+                                    case 4:
+                                        <span class="badge bg-danger">Đã hủy</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">Không xác định</span>
+                                        break;
+                                }
+                            </td>
+                            <td class="text-center">
+                                <a href="~/Order/Details/@item.OrderID" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-list-ul"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center text-muted p-3">
+                            Không có đơn hàng nào thỏa mãn điều kiện tìm kiếm
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer text-center">
+        <!-- Pagination -->
+        <ul class="pagination justify-content-center mb-0">
+            @for (int p = 1; p <= Model.PageCount; p++)
+            {
+                if (p == Model.Page)
+                {
+                    <li class="page-item active"><a class="page-link" href="#">@p</a></li>
+                }
+                else
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="javascript:;" onclick="paginationSearch(event, '#formSearch', @p)">@p</a>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+</div>

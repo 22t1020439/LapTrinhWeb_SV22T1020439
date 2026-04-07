@@ -1,0 +1,72 @@
+/* Đảm bảo layout grid và cột sidebar luôn hiển thị */
+.app-wrapper {
+    display: grid !important;
+    grid-template-areas: "lte-app-sidebar lte-app-header" "lte-app-sidebar lte-app-main" "lte-app-sidebar lte-app-footer" !important;
+    grid-template-rows: min-content 1fr min-content;
+    grid-template-columns: 250px 1fr;
+}
+.app-sidebar {
+    grid-area: lte-app-sidebar !important;
+    min-width: 250px !important;
+    max-width: 250px !important;
+    width: 250px !important;
+}
+body.sidebar-open .app-sidebar {
+    margin-left: 0 !important;
+}
+
+/* Header hai tông: trái LiteShop (tối), phải nav (sáng) */
+.app-header {
+    display: flex !important;
+    flex-wrap: nowrap;
+    width: 100%;
+}
+.app-header .header-brand {
+    min-width: 250px;
+    flex-shrink: 0;
+}
+.app-header .header-nav .navbar-nav .nav-link {
+    color: var(--bs-secondary-color, #6c757d);
+}
+.app-header .header-nav .navbar-nav .nav-link:hover {
+    color: var(--bs-body-color);
+}
+
+/* Đảm bảo vùng nội dung chính luôn có nền sáng, dễ đọc */
+.app-main,
+.app-main .app-content,
+.app-main .app-content-header {
+    background-color: var(--bs-tertiary-bg, #f8f9fa) !important;
+    color: var(--bs-body-color, #212529);
+}
+
+#scrollToTop {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background-color: #64646444;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 9999;
+}
+
+    #scrollToTop:hover {
+        background-color: #0056b3;
+        transform: translateY(-3px);
+    }
+
+/* Footer icon màu tím */
+.app-footer .bi-cpu {
+    color: #6f42c1;
+}
+
+/* Override bootstrap */
+.page-item .page-link {
+    border-radius: 0;
+}

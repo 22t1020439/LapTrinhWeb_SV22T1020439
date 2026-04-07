@@ -1,0 +1,218 @@
+@model SV22T1020439.Models.ProductSearchResult
+@{
+    ViewBag.Title = "Quản lý mặt hàng";
+    ViewBag.DisableAutoNumeric = true; // Flag để disable AutoNumeric trong _Layout
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Lấy giá trị từ URL parameters
+            var urlParams = new URLSearchParams(window.location.search);
+            var minPriceValue = urlParams.get('minPrice') || 0;
+            var maxPriceValue = urlParams.get('maxPrice') || 0;
+            
+            // Chuyển string sang số
+            minPriceValue = parseFloat(minPriceValue) || 0;
+            maxPriceValue = parseFloat(maxPriceValue) || 0;
+            
+            // Khởi tạo AutoNumeric cho các input có class money-input
+            $('.money-input').each(function () {
+                var input = $(this);
+                var initialValue = input.attr('name') === 'minPrice' ? minPriceValue : maxPriceValue;
+                
+                var an = new AutoNumeric(this, {
+                    decimalPlaces: 0,
+                    digitGroupSeparator: '.',
+                    decimalCharacter: ',',
+                    unformatOnSubmit: true,
+                    minimumValue: '0'
+                });
+                
+                // Chỉ thiết lập giá trị nếu > 0
+                if (initialValue > 0) {
+                    an.set(initialValue);
+                }
+            });
+        });
+    </script>
+}
+@section PageToolBar {
+    <a href="~/Product/Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>
+        Bổ sung
+    </a>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        @if (!string.IsNullOrEmpty(TempData["Message"]?.ToString()))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                @TempData["Message"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        
+        @if (!string.IsNullOrEmpty(TempData["ErrorMessage"]?.ToString()))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        
+        <form id="formSearch" action="~/Product" method="get">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label class="form-label">Loại hàng</label>
+                    <select class="form-select" name="categoryID">
+                        <option value="0">-- Tất cả --</option>
+                        @foreach (var c in SV22T1020439.BusinessLayers.CommonDataService.ListOfCategories())
+                        {
+                            if (c.CategoryID == Model.CategoryID)
+                            {
+                                <option value="@c.CategoryID" selected>@c.CategoryName</option>
+                            }
+                            else
+                            {
+                                <option value="@c.CategoryID">@c.CategoryName</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Nhà cung cấp</label>
+                    <select class="form-select" name="supplierID">
+                        <option value="0">-- Tất cả --</option>
+                        @foreach (var s in SV22T1020439.BusinessLayers.CommonDataService.ListOfSuppliers())
+                        {
+                            if (s.SupplierID == Model.SupplierID)
+                            {
+                                <option value="@s.SupplierID" selected>@s.SupplierName</option>
+                            }
+                            else
+                            {
+                                <option value="@s.SupplierID">@s.SupplierName</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Khoảng giá</label>
+                    <div class="input-group">
+                        <input type="text"
+                               name="minPrice" 
+                               class="form-control money-input"
+                               placeholder="Từ" value="@(Model.MinPrice > 0 ? Model.MinPrice.ToString("N0") : "")" />
+                        <span class="input-group-text">-</span>
+                        <input type="text"
+                               name="maxPrice"
+                               class="form-control money-input"
+                               placeholder="Đến" value="@(Model.MaxPrice > 0 ? Model.MaxPrice.ToString("N0") : "")" />
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Tên mặt hàng</label>
+                    <div class="input-group">
+                        <input type="text" name="searchValue"
+                               class="form-control"
+                               placeholder="Tên mặt hàng..." autofocus value="@Model.SearchValue" />
+                        <button class="btn btn-info d-flex align-items-center" type="submit">
+                            <i class="bi bi-search me-1"></i> Tìm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mb-2 text-muted">
+    Danh sách này có <strong>@Model.RowCount</strong> mặt hàng
+</div>
+
+<div class="card">
+    <div class="card-body p-1">
+        <table class="table table-bordered table-hover mb-0 align-middle">
+            <thead class="table-secondary">
+                <tr>
+                    <th style="width:80px;">Ảnh</th>
+                    <th>Mặt hàng</th>
+                    <th style="width:120px;">Đơn vị</th>
+                    <th style="width:120px;">Giá</th>
+                    <th class="text-center" style="width:140px;">Trạng thái</th>
+                    <th class="text-center" style="width:100px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var newProductId = TempData["NewProductID"] as int?;
+                }
+                @foreach (var item in Model.Data)
+                {
+                    var isNewProduct = newProductId == item.ProductID;
+                    <tr class="@(isNewProduct ? "table-success" : "")">
+                        <td class="text-center">
+                            <img src="~/images/products/@(string.IsNullOrEmpty(item.Photo) ? "default.png" : item.Photo)"
+                                 class="img-thumbnail"
+                                 alt="Ảnh mặt hàng" />
+                        </td>
+                        <td>
+                            <strong>@item.ProductName</strong>
+                            @if (isNewProduct)
+                            {
+                                <span class="badge bg-primary ms-2">Mới</span>
+                            }
+                            <br />
+                            <small class="text-muted">
+                                @item.ProductDescription
+                            </small>
+                        </td>
+                        <td>@item.Unit</td>
+                        <td class="text-end">@item.Price.ToString("N0")</td>
+                        <td class="text-center">
+                            @if (item.IsSelling)
+                            {
+                                <span class="badge bg-success">Đang bán</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Ngừng bán</span>
+                            }
+                        </td>
+                        <td class="text-center text-nowrap">
+                            <a href="~/Product/Edit/@item.ProductID" class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i> Sửa
+                            </a>
+                            <a href="~/Product/Delete/@item.ProductID" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i> Xóa
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-footer text-center">
+        <ul class="pagination justify-content-center mb-0">
+            @for (int p = 1; p <= Model.PageCount; p++)
+            {
+                if (p == Model.Page)
+                {
+                    <li class="page-item active"><a class="page-link" href="#">@p</a></li>
+                }
+                else
+                {
+                    <li class="page-item"><a class="page-link" href="~/Product?page=@p&searchValue=@Model.SearchValue&categoryID=@Model.CategoryID&supplierID=@Model.SupplierID&minPrice=@Model.MinPrice&maxPrice=@Model.MaxPrice">@p</a></li>
+                }
+            }
+        </ul>
+    </div>
+</div>

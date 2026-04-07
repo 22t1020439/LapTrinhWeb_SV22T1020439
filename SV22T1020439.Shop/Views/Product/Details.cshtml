@@ -1,0 +1,96 @@
+@model SV22T1020439.Models.Product
+@{
+    ViewBag.Title = Model.ProductName;
+    var photos = ViewBag.Photos as List<SV22T1020439.Models.ProductPhoto> ?? new List<SV22T1020439.Models.ProductPhoto>();
+    var attributes = ViewBag.Attributes as List<SV22T1020439.Models.ProductAttribute> ?? new List<SV22T1020439.Models.ProductAttribute>();
+}
+
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="~/" class="text-decoration-none">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="~/?categoryID=@Model.CategoryID" class="text-decoration-none">@Model.CategoryName</a></li>
+            <li class="breadcrumb-item active">@Model.ProductName</li>
+        </ol>
+    </nav>
+
+    <div class="row g-5">
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm">
+                <img id="mainImage" src="~/images/products/@(string.IsNullOrEmpty(Model.Photo) ? "default.png" : Model.Photo)" 
+                     class="card-img-top" alt="@Model.ProductName" style="max-height: 450px; object-fit: contain; cursor: pointer;"
+                     onclick="openImageModal(this.src)">
+                @if (photos.Count > 0)
+                {
+                    <div class="card-footer bg-white p-3">
+                        <div class="d-flex gap-2 overflow-auto">
+                            @foreach (var photo in photos.Where(p => !p.IsHidden).OrderBy(p => p.DisplayOrder))
+                            {
+                                <img src="~/images/products/@photo.Photo" class="img-thumbnail" style="width: 70px; height: 70px; object-fit: cover; cursor: pointer;"
+                                     onclick="document.getElementById('mainImage').src = this.src">
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <h1 class="h2 fw-bold mb-2">@Model.ProductName</h1>
+            <p class="text-muted mb-3"><i class="bi bi-shop me-1"></i> @Model.SupplierName | <i class="bi bi-tag me-1"></i> @Model.CategoryName</p>
+
+            <div class="bg-light rounded-3 p-4 mb-4">
+                <span class="text-danger h2 fw-bold">@Model.Price.ToString("N0") VNĐ</span>
+                <div class="mt-2"><i class="bi bi-box me-1"></i> Đơn vị: <strong>@Model.Unit</strong></div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ProductDescription))
+            {
+                <div class="mb-4">
+                    <h5 class="fw-bold"><i class="bi bi-file-text me-2"></i>Mô tả</h5>
+                    <p class="text-secondary">@Model.ProductDescription</p>
+                </div>
+            }
+
+            @if (attributes.Count > 0)
+            {
+                <div class="mb-4">
+                    <h5 class="fw-bold"><i class="bi bi-list-check me-2"></i>Thuộc tính</h5>
+                    <table class="table table-borderless table-striped">
+                        @foreach (var attr in attributes.OrderBy(a => a.DisplayOrder))
+                        {
+                            <tr><td class="fw-semibold" style="width: 35%">@attr.AttributeName</td><td>@attr.AttributeValue</td></tr>
+                        }
+                    </table>
+                </div>
+            }
+
+            <div class="d-flex gap-3 pt-3 border-top">
+                <form method="post" action="~/Cart/AddToCart" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="productId" value="@Model.ProductID" />
+                    <input type="hidden" name="quantity" value="1" />
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
+                    </button>
+                </form>
+                <a href="~/" class="btn btn-outline-secondary btn-lg"><i class="bi bi-arrow-left me-2"></i>Quay lại</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-body p-0 text-center">
+                <img id="modalImage" src="" class="img-fluid rounded" style="max-height: 90vh;">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>function openImageModal(src){document.getElementById('modalImage').src=src;new bootstrap.Modal(document.getElementById('imageModal')).show();}</script>
+}

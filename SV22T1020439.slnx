@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/Applications/">
+    <Project Path="SV22T1020439.Admin/SV22T1020439.Admin.csproj" />
+    <Project Path="SV22T1020439.Shop/SV22T1020439.Shop.csproj" />
+  </Folder>
+  <Folder Name="/Applications/AppCodes/">
+    <File Path="../../../Downloads/SelectListHelper.cs" />
+    <File Path="CryptHelper.cs" />
+    <File Path="WebSecurityModels.cs" />
+  </Folder>
+  <Folder Name="/Libraries/">
+    <Project Path="SV22T1020439.BusinessLayers/SV22T1020439.BusinessLayers.csproj" />
+    <Project Path="SV22T1020439.Datalayers/SV22T1020439.Datalayers.csproj" />
+    <Project Path="SV22T1020439.Models/SV22T1020439.Models.csproj" />
+  </Folder>
+  <Folder Name="/Notes/">
+    <File Path="Log.md" />
+  </Folder>
+</Solution>

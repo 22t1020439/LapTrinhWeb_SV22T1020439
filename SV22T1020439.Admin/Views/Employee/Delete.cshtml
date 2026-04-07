@@ -1,0 +1,97 @@
+@model SV22T1020439.Models.Employee
+@{
+    ViewBag.Title = "Xóa nhân viên";
+}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-9">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="card-title mb-0 fw-bold text-danger">
+                    <i class="bi bi-person-x me-2"></i>
+                    Xác nhận xóa nhân viên
+                </h5>
+            </div>
+
+            <div class="card-body p-4">
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger shadow-sm d-flex align-items-center mb-4">
+                        <i class="bi bi-x-octagon-fill fs-4 me-3"></i>
+                        <div>
+                            <div class="fw-bold">Không thể thực hiện!</div>
+                            @TempData["ErrorMessage"]
+                        </div>
+                    </div>
+                }
+
+                <form id="formDelete" action="~/Employee/Delete/@Model.EmployeeID" method="post">
+                    @if (ViewBag.IsUsed)
+                    {
+                        <div class="alert alert-soft-danger d-flex align-items-center mb-4 p-3 border border-danger rounded bg-light">
+                            <i class="bi bi-shield-lock text-danger fs-3 me-3"></i>
+                            <div class="text-danger">
+                                <h6 class="fw-bold mb-1 text-uppercase small">Hành động bị chặn</h6>
+                                Nhân viên này hiện đang có dữ liệu liên quan (đơn hàng), hệ thống không cho phép xóa.
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning d-flex align-items-center mb-4 shadow-sm border-0">
+                            <i class="bi bi-question-circle-fill fs-4 me-3 text-dark"></i>
+                            <div class="text-dark">
+                                Bạn có chắc chắn muốn xóa nhân viên này không? Toàn bộ thông tin tài khoản sẽ bị gỡ bỏ.
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Họ và tên</dt>
+                                <dd class="col-sm-8">@Model.FullName</dd>
+
+                                <dt class="col-sm-4">Ngày sinh</dt>
+                                <dd class="col-sm-8">@Model.BirthDate.ToString("dd/MM/yyyy")</dd>
+
+                                <dt class="col-sm-4">Điện thoại</dt>
+                                <dd class="col-sm-8">@Model.Phone</dd>
+
+                                <dt class="col-sm-4">Email</dt>
+                                <dd class="col-sm-8">@Model.Email</dd>
+
+                                <dt class="col-sm-4">Địa chỉ</dt>
+                                <dd class="col-sm-8">@Model.Address</dd>
+
+                                <dt class="col-sm-4">Trạng thái</dt>
+                                <dd class="col-sm-8">
+                                    @if (Model.IsWorking)
+                                    {
+                                        <span class="badge bg-success">Đang làm việc</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Đã nghỉ việc</span>
+                                    }
+                                </dd>
+                            </dl>
+                        </div>
+
+                        <div class="col-md-4 text-end">
+                            <img src="~/images/employees/@(string.IsNullOrEmpty(Model.Photo) ? "avatar.jpg" : Model.Photo)"
+                                 class="img-fluid img-thumbnail"
+                                 alt="Ảnh nhân viên"
+                                 style="max-height: 220px;" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer bg-white p-3 text-center border-top-0">
+                <p class="small text-muted mb-0 italic">
+                    <i class="bi bi-info-circle me-1 small"></i>
+                    Việc xóa nhân viên sẽ không thể phục hồi. Vui lòng cân nhắc kỹ.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

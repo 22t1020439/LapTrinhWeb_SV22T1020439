@@ -1,0 +1,33 @@
+@model SV22T1020439.Models.Order
+@{
+    Layout = null;
+}
+
+<div class="modal-dialog">
+    <div class="modal-content">
+        <form action="~/Order/Delete/@Model.OrderID" method="post">
+            <div class="modal-header text-bg-danger">
+                <h5 class="modal-title">Xóa đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="alert alert-danger d-flex align-items-center mb-0">
+                    <i class="bi bi-exclamation-triangle-fill fs-4 me-2"></i>
+                    <div>
+                        Bạn có chắc chắn muốn xóa đơn hàng <strong>#@Model.OrderID</strong> của khách hàng <strong>@Model.CustomerName</strong>?
+                        <br />
+                        <small>Hành động này không thể hoàn tác!</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Xác nhận xóa
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            </div>
+        </form>
+    </div>
+</div>

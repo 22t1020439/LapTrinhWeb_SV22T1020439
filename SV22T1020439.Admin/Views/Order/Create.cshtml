@@ -1,0 +1,223 @@
+@model List<SV22T1020439.Models.CartItem>
+@{
+    ViewBag.Title = "Lập đơn hàng";
+}
+
+<div class="row">
+    <!-- Tìm kiếm & chọn mặt hàng -->
+    <div class="col-4">
+        <div class="card card-outline card-primary h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-search"></i>
+                    Lựa chọn hàng cần bán
+                </h5>
+            </div>
+
+            <div class="card-body">
+                <!-- Search -->
+                <form id="formSearchProduct" action="~/Order/SearchProduct" method="get" class="mb-3">
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <label class="form-label">Tên mặt hàng</label>
+                            <div class="input-group">
+                                <input class="form-control"
+                                       name="searchValue"
+                                       placeholder="Nhập tên mặt hàng cần tìm" autofocus />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Giá từ</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control"
+                                       name="minPrice"
+                                       placeholder="Giá tối thiểu" step="1000" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Giá đến</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control"
+                                       name="maxPrice"
+                                       placeholder="Giá tối đa" step="1000" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12 text-center">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-search me-1"></i>
+                                Tìm kiếm
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Danh sách mặt hàng -->
+                <div id="product-search-container">
+                    <div class="text-center p-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer d-none">
+                <ul class="pagination justify-content-between mb-0">
+                    <li class="page-item">
+                        <a class="page-link">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Giỏ hàng và thông tin khách hàng -->
+    <div class="col-8">
+        <!-- Giỏ hàng -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-outline card-success">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-cart"></i>
+                            Danh sách mặt hàng đã chọn
+                        </h5>
+                    </div>
+
+                    <div class="card-body" id="shopping-cart-container">
+                        @await Html.PartialAsync("_ShoppingCart", Model)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Thông tin khách hàng và nơi giao hàng -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card card-outline card-info">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-person"></i>
+                            Thông tin khách hàng & nơi giao hàng
+                        </h5>
+                    </div>
+
+                    <div class="card-body">
+                        <form id="formInitOrder" action="~/Order/Init" method="post">
+                            <div class="row mb-3">
+                                <label class="col-md-2 col-form-label">Khách hàng</label>
+                                <div class="col-md-10">
+                                    <select class="form-select" name="customerID">
+                                        <option value="0">-- Chọn khách hàng --</option>
+                                        @foreach (var c in SV22T1020439.BusinessLayers.CommonDataService.ListOfCustomers())
+                                        {
+                                            <option value="@c.CustomerID">@c.CustomerName</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label class="col-md-2 col-form-label">Tỉnh/thành</label>
+                                <div class="col-md-10">
+                                    <select class="form-select" name="deliveryProvince">
+                                        <option value="">-- Chọn Tỉnh/thành giao hàng --</option>
+                                        @foreach (var p in SV22T1020439.BusinessLayers.CommonDataService.ListOfProvinces())
+                                        {
+                                            <option value="@p.ProvinceName">@p.ProvinceName</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label class="col-md-2 col-form-label">Địa chỉ</label>
+                                <div class="col-md-10">
+                                    <textarea class="form-control" name="deliveryAddress" rows="2"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i>
+                                    Lập đơn hàng
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Search product when typing or clicking search button
+            $("#formSearchProduct").submit(function (e) {
+                e.preventDefault();
+                doSearch(1);
+            });
+
+            // Initialize product search
+            doSearch(1);
+
+            // Initialize shopping cart display
+            showShoppingCart();
+
+            // Submit order
+            $("#formInitOrder").submit(function (e) {
+                e.preventDefault();
+                var url = $(this).attr('action');
+                var data = $(this).serialize();
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: data,
+                    success: function (result) {
+                        if (result.success) {
+                            alert("Đã lập đơn hàng thành công. Mã đơn hàng: " + result.orderID);
+                            window.location.href = "/Order/Details/" + result.orderID;
+                        } else {
+                            alert(result.message);
+                        }
+                    }
+                });
+            });
+        });
+
+        function doSearch(page) {
+            var url = $("#formSearchProduct").attr('action');
+            var data = $("#formSearchProduct").serializeArray();
+            data.push({ name: 'page', value: page });
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: data,
+                success: function (result) {
+                    $("#product-search-container").html(result);
+                }
+            });
+        }
+
+        function showShoppingCart() {
+            $.ajax({
+                url: '/Order/ShoppingCart',
+                type: 'GET',
+                success: function (result) {
+                    $("#shopping-cart-container").html(result);
+                }
+            });
+        }
+    </script>
+}

@@ -1,0 +1,70 @@
+@model List<SV22T1020439.Models.CartItem>
+@{
+    ViewBag.Title = "Đặt hàng";
+    var customer = ViewBag.Customer as SV22T1020439.Models.Customer;
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-truck"></i> Thông tin giao hàng</h5>
+            </div>
+            <div class="card-body">
+                <form id="formCheckout" action="~/Order/PlaceOrder" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Họ tên người nhận</label>
+                        <input type="text" class="form-control" value="@customer?.CustomerName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tỉnh / Thành giao hàng</label>
+                        <select name="deliveryProvince" class="form-select" required>
+                            <option value="">-- Chọn tỉnh/thành --</option>
+                            @foreach (var p in SV22T1020439.BusinessLayers.CommonDataService.ListOfProvinces())
+                            {
+                                <option value="@p.ProvinceName" selected="@(p.ProvinceName == customer?.Province)">@p.ProvinceName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Địa chỉ nhận hàng</label>
+                        <textarea name="deliveryAddress" class="form-control" rows="3" required>@customer?.Address</textarea>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-receipt"></i> Tóm tắt đơn hàng</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush mb-3">
+                    @foreach (var item in Model)
+                    {
+                        <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="my-0">@item.ProductName</h6>
+                                <small class="text-muted">x @item.Quantity @item.Unit</small>
+                            </div>
+                            <span class="text-muted">@item.TotalPrice.ToString("N0") đ</span>
+                        </div>
+                    }
+                    <div class="list-group-item px-0 d-flex justify-content-between">
+                        <strong>Tổng cộng</strong>
+                        <strong class="text-danger fs-5">@Model.Sum(x => x.TotalPrice).ToString("N0") đ</strong>
+                    </div>
+                </div>
+                <button type="submit" form="formCheckout" class="btn btn-primary w-100 btn-lg">
+                    Xác nhận đặt hàng
+                </button>
+                <a href="~/Cart/Index" class="btn btn-link w-100 text-decoration-none mt-2">
+                    Quay lại giỏ hàng
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

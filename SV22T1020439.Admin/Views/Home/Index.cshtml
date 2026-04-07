@@ -1,0 +1,270 @@
+@model SV22T1020439.Admin.Models.DashboardViewModel
+@{
+    ViewBag.Title = "Trang chủ";
+}
+
+<!--begin::App Content Header-->
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <h3 class="mb-0">Trang chủ</h3>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end::App Content Header-->
+
+<!--begin::App Content-->
+<div class="app-content">
+    <div class="container-fluid">
+        <!-- Info boxes -->
+        <div class="row">
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box bg-primary text-white">
+                    <span class="info-box-icon shadow-sm">
+                        <i class="bi bi-currency-dollar"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Doanh thu hôm nay</span>
+                        <span class="info-box-number fw-bold fs-4">@Model.TodayRevenue.ToString("N0") đ</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box bg-success text-white">
+                    <span class="info-box-icon shadow-sm">
+                        <i class="bi bi-card-list"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Đơn hàng</span>
+                        <span class="info-box-number fw-bold fs-4">@Model.OrderCount</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box bg-warning text-dark">
+                    <span class="info-box-icon shadow-sm">
+                        <i class="bi bi-people"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Khách hàng</span>
+                        <span class="info-box-number fw-bold fs-4">@Model.CustomerCount</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box bg-danger text-white">
+                    <span class="info-box-icon shadow-sm">
+                        <i class="bi bi-box-seam"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Sản phẩm</span>
+                        <span class="info-box-number fw-bold fs-4">@Model.ProductCount</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <!-- Doanh thu theo tháng -->
+            <div class="col-md-8">
+                <div class="card card-outline card-primary h-100">
+                    <div class="card-header border-0">
+                        <div class="d-flex justify-content-between">
+                            <h3 class="card-title">
+                                <i class="bi bi-bar-chart-line me-2"></i>
+                                Doanh thu theo tháng
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="position-relative mb-4">
+                            <canvas id="revenue-chart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top sản phẩm bán chạy -->
+            <div class="col-md-4">
+                <div class="card card-outline card-warning h-100">
+                    <div class="card-header border-0">
+                        <h3 class="card-title">
+                            <i class="bi bi-star me-2"></i>
+                            Top sản phẩm bán chạy
+                        </h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            @foreach (var item in Model.TopProducts)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    @item.ProductName
+                                    <span class="badge bg-success rounded-pill">@item.SoldQuantity</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Đơn hàng cần xử lý -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card card-outline card-info">
+                    <div class="card-header border-0">
+                        <h3 class="card-title">
+                            <i class="bi bi-clock-history me-2"></i>
+                            Đơn hàng cần xử lý
+                        </h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Khách hàng</th>
+                                        <th>Ngày lập</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Trạng thái</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model.PendingOrders)
+                                    {
+                                        <tr>
+                                            <td class="fw-bold">#@order.OrderID</td>
+                                            <td>@order.CustomerName</td>
+                                            <td>@order.OrderTime.ToString("dd/MM/yyyy")</td>
+                                            <td class="text-danger fw-semibold">@order.TotalPrice.ToString("N0") đ</td>
+                                            <td>
+                                                <span class="badge bg-danger">@order.StatusDescription</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <a href="~/Order/Details/@order.OrderID" class="btn btn-sm btn-outline-primary">
+                                                    Chi tiết
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                    @if (!Model.PendingOrders.Any())
+                                    {
+                                        <tr>
+                                            <td colspan="6" class="text-center p-4 text-muted">
+                                                Không có đơn hàng nào cần xử lý
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center bg-transparent">
+                        <a href="~/Order" class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+                            Xem tất cả đơn hàng
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end::App Content-->
+
+@section Styles {
+    <style>
+        .info-box {
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+        .info-box:hover {
+            transform: translateY(-5px);
+        }
+        .info-box-icon {
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+}
+
+@section Scripts {
+    <!-- ChartJS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(function () {
+            'use strict'
+
+            var ticksStyle = {
+                fontColor: '#495057',
+                fontStyle: 'bold'
+            }
+
+            var mode = 'index'
+            var intersect = true
+
+            var $revenueChart = $('#revenue-chart')
+            var revenueChart = new Chart($revenueChart, {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.MonthlyRevenues.Select(m => m.MonthName))),
+                    datasets: [
+                        {
+                            label: 'Doanh thu (triệu đồng)',
+                            backgroundColor: '#007bff',
+                            borderColor: '#007bff',
+                            data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.MonthlyRevenues.Select(m => m.Revenue)))
+                        }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    tooltips: {
+                        mode: mode,
+                        intersect: intersect
+                    },
+                    hover: {
+                        mode: mode,
+                        intersect: intersect
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    scales: {
+                        yAxes: [{
+                            gridLines: {
+                                display: true,
+                                lineWidth: '4px',
+                                color: 'rgba(0, 0, 0, .2)',
+                                zeroLineColor: 'transparent'
+                            },
+                            ticks: $.extend({
+                                beginAtZero: true,
+                                callback: function (value) {
+                                    if (value >= 1000) {
+                                        value /= 1000
+                                        value += 'k'
+                                    }
+                                    return value + 'tr'
+                                }
+                            }, ticksStyle)
+                        }],
+                        xAxes: [{
+                            display: true,
+                            gridLines: {
+                                display: false
+                            },
+                            ticks: ticksStyle
+                        }]
+                    }
+                }
+            })
+        })
+    </script>
+}

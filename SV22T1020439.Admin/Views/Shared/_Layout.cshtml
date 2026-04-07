@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>@(ViewBag.Title != null ? $"{ViewBag.Title} - LiteShop" : "LiteShop")</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <!-- Bootstrap 5 CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- OverlayScrollbars CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.3.0/styles/overlayscrollbars.min.css" rel="stylesheet" />
+    <!-- AdminLTE 4 CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css" rel="stylesheet" />
+    <!-- Bootstrap Icons (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <!-- flatpickr -->
+    <link rel="stylesheet" href="~/lib/flatpickr/flatpickr.min.css">
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body class="layout-fixed fixed-header fixed-footer sidebar-expand-lg sidebar-open bg-body-tertiary">
+    <div class="app-wrapper">
+
+        <!--begin::Header-->
+        <nav class="app-header navbar navbar-expand bg-body-secondary">
+            <div class="container-fluid">
+                <!--begin::Start Navbar Links-->
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                            <i class="bi bi-list"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item d-none d-md-block"><a asp-controller="Home" asp-action="Index" class="nav-link">Home</a></li>
+                    <li class="nav-item d-none d-md-block"><a asp-controller="Home" asp-action="Privacy" class="nav-link">Contact</a></li>
+                </ul>
+                <!--end::Start Navbar Links-->
+                <!--begin::End Navbar Links-->
+                <ul class="navbar-nav ms-auto">
+                    <!--begin::User Menu Dropdown-->
+                    <li class="nav-item dropdown user-menu">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            @{
+                                var userData = User.FindFirst(System.Security.Claims.ClaimTypes.UserData)?.Value;
+                                var user = userData != null ? Newtonsoft.Json.JsonConvert.DeserializeObject<SV22T1020439.Models.UserAccount>(userData) : null;
+                            }
+                            <img src="~/images/employees/@(string.IsNullOrEmpty(user?.Photo) ? "avatar.jpg" : user.Photo)" class="user-image rounded-circle shadow" alt="User Image" />
+                            <span class="d-none d-md-inline">@user?.DisplayName</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                            <!--begin::User Image-->
+                            <li class="user-header text-bg-primary">
+                                <img src="~/images/employees/@(string.IsNullOrEmpty(user?.Photo) ? "avatar.jpg" : user.Photo)" class="rounded-circle shadow" alt="User Image" />
+                                <p>
+                                    @user?.DisplayName
+                                    <small>@user?.RoleNames</small>
+                                </p>
+                            </li>
+                            <!--end::User Image-->
+                            <!--begin::Menu Footer-->
+                            <li class="user-footer">
+                                <a asp-controller="Account" asp-action="ChangePassword" class="btn btn-default btn-flat">Đổi mật khẩu</a>
+                                <a asp-controller="Account" asp-action="Logout" class="btn btn-default btn-flat float-end">Thoát</a>
+                            </li>
+                            <!--end::Menu Footer-->
+                        </ul>
+                    </li>
+                    <!--end::User Menu Dropdown-->
+                </ul>
+                <!--end::End Navbar Links-->
+            </div>
+        </nav>
+        <!--end::Header-->
+        <!--begin::Sidebar-->
+        <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+            <!--begin::Sidebar Brand-->
+            <div class="sidebar-brand">
+                <a asp-controller="Home" asp-action="Index" class="brand-link">
+                    <img src="https://adminlte.io/themes/v3/dist/img/AdminLTELogo.png" alt="Logo" class="brand-image opacity-75 shadow" />
+                    <span class="brand-text fw-light">LiteShop</span>
+                </a>
+            </div>
+            <!--end::Sidebar Brand-->
+            <!--begin::Sidebar Wrapper-->
+            <div class="sidebar-wrapper">
+                <nav class="mt-2">
+                    <!--begin::Sidebar Menu-->
+                    <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation"
+                        aria-label="Main navigation" data-accordion="false" id="navigation">
+
+                        <li class="nav-item">
+                            <a asp-controller="Home" asp-action="Index" class="nav-link">
+                                <i class="nav-icon bi bi-speedometer2"></i>
+                                <p>Trang chủ</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item menu-open">
+                            <a href="#" class="nav-link active">
+                                <i class="nav-icon bi bi-archive"></i>
+                                <p>
+                                    Quản lý dữ liệu
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a asp-controller="Supplier" asp-action="Index" class="nav-link">
+                                        <i class="nav-icon bi bi-truck"></i>
+                                        <p>Nhà cung cấp</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-controller="Customer" asp-action="Index" class="nav-link">
+                                        <i class="nav-icon bi bi-people"></i>
+                                        <p>Khách hàng</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-controller="Shipper" asp-action="Index" class="nav-link">
+                                        <i class="nav-icon bi bi-bicycle"></i>
+                                        <p>Người giao hàng</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-controller="Employee" asp-action="Index" class="nav-link">
+                                        <i class="nav-icon bi bi-people-fill"></i>
+                                        <p>Nhân viên</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item menu-open">
+                            <a href="#" class="nav-link active">
+                                <i class="nav-icon bi bi-archive"></i>
+                                <p>
+                                    Quản lý hàng hóa
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a asp-controller="Category" asp-action="Index" class="nav-link">
+                                        <i class="nav-icon bi bi-collection"></i>
+                                        <p>Loại hàng</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-controller="Product" asp-action="Index" class="nav-link">
+                                        <i class="nav-icon bi bi-boxes"></i>
+                                        <p>Mặt hàng</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item menu-open">
+                            <a href="#" class="nav-link active">
+                                <i class="nav-icon bi bi-cash-stack"></i>
+                                <p>
+                                    Quản lý bán hàng
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a asp-controller="Order" asp-action="Create" class="nav-link">
+                                        <i class="nav-icon bi bi-cart-plus"></i>
+                                        <p>Lập đơn hàng</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-controller="Order" asp-action="Index" class="nav-link">
+                                        <i class="nav-icon bi bi-receipt"></i>
+                                        <p>Quản lý đơn hàng</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                    <!--end::Sidebar Menu-->
+                </nav>
+            </div>
+            <!--end::Sidebar Wrapper-->
+        </aside>
+        <!--end::Sidebar-->
+        <!--begin::App Main-->
+        <main class="app-main">
+            <div class="app-content-header py-2">
+                <div class="container-fluid">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">@ViewBag.Title</h5>
+                        </div>
+                        <div class="col-auto">
+                            @await RenderSectionAsync("PageToolBar", required: false)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="app-content">
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </div>
+        </main>
+        <!--end::App Main-->
+        <!--begin::Footer-->
+        <footer class="app-footer bg-body-secondary">
+            <div class="float-end d-none d-sm-inline">Anything you want</div>
+            <strong>
+                Copyright &copy; 2014-2025&nbsp;
+                <a href="https://adminlte.io" class="text-decoration-none">Bản Quyền Công Ty TDT Shop</a>.
+            </strong>
+            Phát Triển Bởi Trần Đại Thành
+        </footer>
+        <!--end::Footer-->
+    </div>
+
+    <div class="modal fade" id="modal-container" tabindex="-1" aria-hidden="true">
+    </div>
+
+    <!-- JQuery (CDN) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- OverlayScrollbars JS -->
+    <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.3.0/overlayscrollbars.browser.es6.min.js"></script>
+    <!-- AdminLTE 4 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
+    <!-- site.js -->
+    <script src="~/js/site.js"></script>
+    <!-- flatpickr -->
+    <script src="~/lib/flatpickr/flatpickr.min.js"></script>
+    <script src="~/lib/flatpickr/l10n/vn.js"></script>
+    <!-- AutoNumeric -->
+    <script src="~/lib/autonumeric/autonumeric.js"></script>
+    
+    <script>
+        $(document).ready(function () {
+            // Chỉ khởi tạo AutoNumeric nếu không bị disable
+            if (!('@ViewBag.DisableAutoNumeric' === 'True')) {
+                // Khởi tạo AutoNumeric cho các input có class money-input
+                $('.money-input').each(function () {
+                    new AutoNumeric(this, {
+                        decimalPlaces: 0,
+                        digitGroupSeparator: '.',
+                        decimalCharacter: ',',
+                        unformatOnSubmit: true,
+                        minimumValue: '0'
+                    });
+                });
+            }
+
+            // Khởi tạo flatpickr cho tất cả các input có class date-picker
+            $(".date-picker").flatpickr({
+                allowInput: true,
+                dateFormat: "d/m/Y",
+                locale: "vn"
+            });
+
+            $(document).on('click', '.open-modal', function (e) {
+                e.preventDefault();
+                var url = $(this).attr('href');
+                $.get(url, function (data) {
+                    $('#modal-container').html(data);
+                    $('#modal-container').modal('show');
+                });
+            });
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>
